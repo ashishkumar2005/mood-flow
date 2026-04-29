@@ -1,5 +1,6 @@
-"""Engine module — REAL ML VERSION"""
+"""Engine module - real ML version."""
 
+import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
@@ -16,29 +17,62 @@ from model import MOOD_ACTIVITIES
 # TRAINING DATA
 # ─────────────────────────────────────────
 TRAIN_DATA = [
+    ("happy", "happy"),
     ("I feel happy and amazing", "happy"),
     ("this is a great day", "happy"),
-    ("I am very excited", "excited"),
+    ("I feel joyful and cheerful", "happy"),
+    ("I am in a good mood", "happy"),
 
+    ("excited", "excited"),
+    ("I am very excited", "excited"),
+    ("I feel thrilled and energetic", "excited"),
+    ("I am pumped and ready", "excited"),
+    ("I feel enthusiastic", "excited"),
+
+    ("sad", "sad"),
     ("I feel sad and down", "sad"),
     ("I feel lonely", "sad"),
+    ("I am unhappy today", "sad"),
+    ("I feel low and empty", "sad"),
 
+    ("anxious", "anxious"),
     ("I feel anxious", "anxious"),
     ("I have anxiety", "anxious"),
     ("I feel nervous and worried", "anxious"),
+    ("I feel panicked and uneasy", "anxious"),
 
+    ("bored", "bored"),
     ("I am bored", "bored"),
     ("nothing to do", "bored"),
+    ("I feel dull and uninterested", "bored"),
 
+    ("tired", "tired"),
     ("I am tired", "tired"),
     ("I feel exhausted", "tired"),
+    ("I feel sleepy and drained", "tired"),
 
+    ("angry", "angry"),
     ("I am angry", "angry"),
     ("I feel frustrated", "angry"),
+    ("I am mad and irritated", "angry"),
 
+    ("stressed", "stressed"),
     ("I am stressed", "stressed"),
     ("too much pressure", "stressed"),
+    ("I feel overwhelmed by work", "stressed"),
 ]
+
+
+DIRECT_MOOD_ALIASES = {
+    "happy": ["happy", "joyful", "cheerful", "great", "amazing"],
+    "sad": ["sad", "lonely", "unhappy", "depressed", "low"],
+    "anxious": ["anxious", "anxiety", "nervous", "worried", "panic", "panicked"],
+    "bored": ["bored", "boring", "dull", "uninterested"],
+    "tired": ["tired", "exhausted", "sleepy", "drained", "fatigue"],
+    "angry": ["angry", "mad", "furious", "frustrated", "irritated"],
+    "excited": ["excited", "thrilled", "pumped", "energetic", "enthusiastic", "hyped"],
+    "stressed": ["stressed", "stress", "overwhelmed", "pressure", "swamped"],
+}
 
 
 # ─────────────────────────────────────────
@@ -47,7 +81,7 @@ TRAIN_DATA = [
 class MoodClassifier:
 
     def __init__(self):
-        self.vectorizer = TfidfVectorizer()
+        self.vectorizer = TfidfVectorizer(ngram_range=(1, 2), lowercase=True)
         self.model = LogisticRegression(max_iter=1000)
         self.is_trained = False
 
@@ -60,6 +94,15 @@ class MoodClassifier:
 
         self.is_trained = True
         return self
+
+    def _direct_mood_match(self, text: str):
+        words = set(re.findall(r"[a-zA-Z']+", text.lower()))
+
+        for mood, aliases in DIRECT_MOOD_ALIASES.items():
+            if any(alias in words for alias in aliases):
+                return mood
+
+        return None
 
     def predict(self, text: str):
         if not self.is_trained:
@@ -76,11 +119,32 @@ class MoodClassifier:
             for i in range(len(classes))
         }
 
+        direct_mood = self._direct_mood_match(text)
+        if direct_mood in confidence:
+            confidence = self._boost_direct_confidence(confidence, direct_mood)
+            pred = direct_mood
+
         confidence = dict(
             sorted(confidence.items(), key=lambda item: item[1], reverse=True)
         )
 
         return pred, confidence
+
+    @staticmethod
+    def _boost_direct_confidence(confidence: dict, mood: str):
+        boosted = {}
+        remaining = 0.15
+        other_total = sum(value for key, value in confidence.items() if key != mood)
+
+        for key, value in confidence.items():
+            if key == mood:
+                boosted[key] = 0.85
+            elif other_total:
+                boosted[key] = remaining * (value / other_total)
+            else:
+                boosted[key] = remaining / max(len(confidence) - 1, 1)
+
+        return boosted
 
 
 # ─────────────────────────────────────────

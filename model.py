@@ -87,7 +87,7 @@ MOOD_ACTIVITIES: dict[str, list[str]] = {
 
 # Keyword → mood mapping for fuzzy detection
 MOOD_KEYWORDS: dict[str, list[str]] = {
-    "happy":   ["happy", "great", "joy", "good", "wonderful", "amazing", "fantastic", "excited", "cheerful", "elated"],
+    "happy":   ["happy", "great", "joy", "good", "wonderful", "amazing", "fantastic", "cheerful", "elated"],
     "sad":     ["sad", "down", "unhappy", "depressed", "blue", "melancholy", "grief", "cry", "lonely", "empty"],
     "anxious": ["anxious", "worried", "nervous", "panic", "stress", "tense", "uneasy", "afraid", "scared", "fear"],
     "bored":   ["bored", "boring", "dull", "nothing to do", "uninterested", "restless", "idle", "monotonous"],
