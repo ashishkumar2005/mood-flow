@@ -21,6 +21,28 @@ View the deployed app here:
 
 **[https://mooodflow.streamlit.app/](https://mooodflow.streamlit.app/)**
 
+## Screenshots
+
+Add your app screenshots inside the `screenshots` folder using these exact file names:
+
+```text
+screenshots/welcome-screen.png
+screenshots/mood-analysis.png
+screenshots/recommendations-screen.png
+```
+
+### Welcome Screen
+
+![Mood Flow welcome screen](screenshots/welcome-screen.png)
+
+### Mood Analysis
+
+![Mood Flow mood analysis screen](screenshots/mood-analysis.png)
+
+### Recommendations
+
+![Mood Flow recommendations screen](screenshots/recommendations-screen.png)
+
 ## Overview
 
 Mood Flow is a machine learning web app that helps users reflect on how they feel and receive simple, mood-aware action suggestions. A user writes a short message such as "I feel stressed about deadlines," and the app predicts the emotional state, displays model confidence, and recommends actions that match the mood.
@@ -99,6 +121,7 @@ mood-flow/
 |-- model.py           # Mood-to-activity recommendation data
 |-- data_handler.py    # JSON data read/write helpers
 |-- utils.py           # Helper functions
+|-- screenshots/       # App screenshots for README preview
 |-- requirements.txt   # Python dependencies
 |-- .gitignore         # Ignored local/cache files
 `-- README.md          # Project documentation
